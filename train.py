@@ -41,10 +41,14 @@ def parseInput():
 class Trainer:
     def __init__(self, *args, **kwargs):
         print("KWARGS", kwargs)
-        self.train_dir = kwargs['train_dir']
-        self.test_dir = kwargs['test_dir']
-        self.save_dir = kwargs['save_dir']
         self.architecture = kwargs['architecture']
+        self.epochs = kwargs['epochs']
+        self.hidden_layers = kwargs['hidden_layers']
+        self.learning_rate = kwargs['learning_rate']
+        self.save_dir = kwargs['save_dir']
+        self.shouldTryGPU = kwargs['shouldTryGPU']
+        self.test_dir = kwargs['test_dir']
+        self.train_dir = kwargs['train_dir']
 
     def buildModel(self, *args, **kwargs):
         arch = self.architecture
