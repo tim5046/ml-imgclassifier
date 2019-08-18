@@ -18,3 +18,5 @@ def getResponse(question, allowableResponses=None):
         # No validation, just return whatever they give us
         return reply
 
+def notify(message):
+  print(f"\n\n#######\n{message}")
