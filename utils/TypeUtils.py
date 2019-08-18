@@ -1,3 +1,5 @@
+import json
+
 def tryCastToFloat(str):
   # Cast an item to a float if it exists.
   try:

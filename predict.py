@@ -4,6 +4,9 @@ import torch
 from torch import nn, optim
 from torchvision import datasets, transforms, models
 import time
+import PIL
+from PIL import Image
+import numpy as np
 
 from utils import IOUtils, TypeUtils
 
@@ -56,15 +59,14 @@ class Predictor:
     def loadModel(self, *args, **kwargs):
       checkpoint = torch.load(self.checkpoint)
       self.model = checkpoint['architecture']
-
-      for param in model.parameters():
+      for param in self.model.parameters():
         param.requires_grad = False
 
       self.model.classifier = checkpoint['classifier']
       self.model.load_state_dict(checkpoint['state_dict'])
       self.model.to(self.device)
-      print("MODEL LOADED!", model)
-      return model
+
+      return self.model
 
     def preparePredictor(self, *args, **kwargs):
       if not self.category_names:
@@ -74,7 +76,7 @@ class Predictor:
           self.top_k = 5
 
 
-    def process_image(image):
+    def process_image(self, image):
       # Preprocess images to turn them into valid inputs into our model
       img = Image.open(image)
       width,height = img.size
@@ -113,7 +115,7 @@ class Predictor:
           output = self.model.forward(torch_img)
 
       prob = torch.exp(output)
-      probs, indexes = prob.topk(self.top_k)
+      probs, indexes = prob.topk(int(self.top_k))
 
       probs_list = np.array(probs)[0]
       predictions_list = np.array(indexes)[0]
@@ -122,14 +124,12 @@ class Predictor:
         #If they provided a category_names dict, use it to translate indexes into names now.
         classes_list = []
         category_indexes_dict = TypeUtils.cat_to_name(self.category_names)
-        for idx in indexes_list:
+        for idx in predictions_list:
           classes_list.append(category_indexes_dict[str(idx + 1)])
         predictions_list = classes_list
 
-      print("PROBS LIST", probs_list)
-      print("PREDICTIONS LIST", predictions_list)
       for i in range(len(probs_list)):
-        IOUtils.notify(f"Prediction: {predictions_list[i]} with probability {probs_list[i]}.")
+        IOUtils.notify(f"Prediction: {predictions_list[i]} with probability {(probs_list[i] * 100):.2f}%")
 
       return probs_list, predictions_list
 

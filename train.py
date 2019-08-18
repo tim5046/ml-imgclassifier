@@ -115,7 +115,7 @@ class Trainer:
         if not self.epochs:
             IOUtils.notify("Number of training epochs not defined. Using default 10 epochs.")
             self.epochs = 10
-        if not self.hidden_layers or not isinstance(self.hidden_layers, list):
+        if not self.hidden_layers:
             IOUtils.notify("Hidden layers not defined as array. Using default 2 hidden layers.")
         if not self.dropout_rate:
             IOUtils.notify("Dropout rate not defined. Using default 0.5 dropout rate for all hidden layers.")
