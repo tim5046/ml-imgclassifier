@@ -11,3 +11,7 @@ def tryCastToInt(str):
     return int(str)
   except:
     return None
+
+def cat_to_name(jsonFilepath):
+    with open(jsonFilepath, 'r') as f:
+        return json.load(f)

@@ -9,24 +9,24 @@ from utils import IOUtils, TypeUtils
 
 def parseInput():
     parser = argparse.ArgumentParser(add_help=True)
-    parser.add_argument('-train', '--train_data_directory', action='store',
-        help="Training data directory")
-    parser.add_argument('-test', '--test_data_directory', action='store',
-        help="Test data directory")
-    parser.add_argument('-s', '--save_directory', action='store',
-        help="Directory to save model")
     parser.add_argument('-a', '--arch', action='store',
         help="Pretrained model architecture")
-    parser.add_argument('-o', '--num_outputs', action='store',
-        help="Number of model outputs")
-    parser.add_argument('-hidden', '--hidden_layers', action='store',
-        help="Number of model outputs")
+    parser.add_argument('-alpha', '--learning_rate', action='store',
+        help="Learning rate")
     parser.add_argument('-e', '--epochs', action='store',
         help="Number of epochs")
     parser.add_argument('-gpu', '--gpu', action='store_true',
         help="Use GPU if it's available")
-    parser.add_argument('-alpha', '--learning_rate', action='store',
-        help="Learning rate")
+    parser.add_argument('-hidden', '--hidden_layers', action='store',
+        help="Number of model outputs")
+    parser.add_argument('-o', '--num_outputs', action='store',
+        help="Number of model outputs")
+    parser.add_argument('-s', '--save_directory', action='store',
+        help="Directory to save model")
+    parser.add_argument('-test', '--test_data_directory', action='store',
+        help="Test data directory")
+    parser.add_argument('-train', '--train_data_directory', action='store',
+        help="Training data directory")
 
     args = parser.parse_args()
     required_arguments = ['train_data_directory', 'test_data_directory', 'num_outputs']
@@ -82,18 +82,23 @@ class Trainer:
         # A dictionary would be more elegant here, but if you put the models as values in a dict, python will go download them all as well (which we dont want unless we're going to use it)
         if arch == 'vgg11':
             self.model = models.vgg11(pretrained=True)
+            self.framework = self.model
         elif arch == 'vgg13':
             self.model = models.vgg13(pretrained=True)
+            self.framework = self.model
         elif arch == 'vgg16':
             self.model = models.vgg16(pretrained=True)
+            self.framework = self.model
         elif arch == 'vgg19':
             self.model = models.vgg19(pretrained=True)
+            self.framework = self.model
         else:
             # No architecture provided. Let them define one now, or use a default
             shouldUseDefault = IOUtils.yesOrNo("No architecture was provided. Press (y) to use the default [vgg19], or (n) to define your own architecture.")
             if shouldUseDefault:
                 self.architecture = 'vgg19'
                 self.model = models.vgg19(pretrained=True)
+                self.framework = self.model
             else:
                 supportedModels = ['vgg11', 'vgg13', 'vgg16', 'vgg19']
                 chosenArchitecture = IOUtils.getResponse(f"Choose model architecture. Options are {supportedModels}:",
@@ -235,6 +240,7 @@ class Trainer:
             savePath = IOUtils.getResponse("Enter filename (it should end in .pth)")
             # TODO: Save the checkpoint
             checkpoint = {
+                          'architecture': self.framework,
                           'classifier': self.model.classifier,
                           'input_size': 25088,
                           'output_size': 102,
